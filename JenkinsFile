@@ -1,9 +1,10 @@
 pipeline {
     agent any
     stages {
-        stage('Build') {
+        stage('checkout') {
             steps {
-                echo 'Building the project...'
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/parthshah0210/BasicWeb.git'
+                echo 'code checkout success'
             }
         }
         stage('Test') {
