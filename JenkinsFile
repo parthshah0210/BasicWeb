@@ -1,5 +1,10 @@
 pipeline {
     agent any
+
+        environment {
+        DOCKER_IMAGE_NAME = 'my-image'  // Name of the Docker image
+        DOCKER_TAG = 'latest'           // Docker image tag
+    }
     stages {
         stage('checkout') {
             steps {
@@ -7,14 +12,41 @@ pipeline {
                 echo 'code checkout success'
             }
         }
-        stage('Test') {
+       stage('Build Docker Image') {
             steps {
-                echo 'Running tests...'
+                script {
+                    // Build Docker image from Dockerfile in the repository
+                    docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}")
+                }
             }
         }
-        stage('Deploy') {
+        
+        stage('Run Docker Container') {
             steps {
-                echo 'Deploying the project...'
+                script {
+                    // Run the Docker container (e.g., run a test or the application)
+                    docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").run('-d')
+                }
+            }
+        }
+
+        stage('Post Execution') {
+            steps {
+                script {
+                    // Optionally remove the container if not needed anymore
+                    docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").stop()
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Clean up the Docker image after the pipeline completes
+            docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").remove()
+        }
+    }
+}
             }
         }
     }
