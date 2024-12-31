@@ -44,8 +44,8 @@ pipeline {
 
     post {
         always {
-            // Clean up the Docker image after the pipeline completes
-            docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").remove()
+            // Corrected the remove method with the force option
+            docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").remove(force: true)
         }
     }
 }
