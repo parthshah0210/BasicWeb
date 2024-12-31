@@ -2,35 +2,50 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_IMAGE_NAME = 'my-image'  // Name of the Docker image
-        DOCKER_TAG = 'latest'           // Docker image tag
+        DOCKER_IMAGE_NAME = 'my-image'
+        DOCKER_TAG = 'latest'
     }
     
     stages {
         stage('Checkout') {
             steps {
-                git url: "https://github.com/parthshah0210/BasicWeb.git", branch: 'main'
-                echo 'code checkout success'
+                git url: 'https://github.com/parthshah0210/BasicWeb.git', branch: 'main'
+                echo 'Code checkout success'
             }
         }
-        
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build Docker image from Dockerfile in the repository
+                    // Build Docker image
                     docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}")
                 }
             }
         }
-        
+
         stage('Run Docker Container') {
             steps {
                 script {
-                    // Run the Docker container (e.g., run a test or the application)
-                    docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").run('-d -p 80:80')
-
+                    // Run the Docker container with port mapping
+                    docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").run('-d -p 8080:80')
                 }
             }
+        }
+
+        stage('Post Execution') {
+            steps {
+                script {
+                    // Optionally stop the container after execution
+                    docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").stop()
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up the Docker image after the pipeline completes
+            docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").remove()
         }
     }
 }
