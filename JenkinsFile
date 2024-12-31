@@ -27,7 +27,8 @@ pipeline {
             steps {
                 script {
                     // Run the Docker container (e.g., run a test or the application)
-                    docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").run('-d')
+                    docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").run('-d -p 80:80')
+
                 }
             }
         }
