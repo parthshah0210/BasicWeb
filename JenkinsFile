@@ -1,18 +1,20 @@
 pipeline {
     agent any
-
-        environment {
+    
+    environment {
         DOCKER_IMAGE_NAME = 'my-image'  // Name of the Docker image
         DOCKER_TAG = 'latest'           // Docker image tag
     }
+    
     stages {
-        stage('checkout') {
+        stage('Checkout') {
             steps {
                 git url: "https://github.com/parthshah0210/BasicWeb.git", branch: 'main'
                 echo 'code checkout success'
             }
         }
-       stage('Build Docker Image') {
+        
+        stage('Build Docker Image') {
             steps {
                 script {
                     // Build Docker image from Dockerfile in the repository
@@ -44,10 +46,6 @@ pipeline {
         always {
             // Clean up the Docker image after the pipeline completes
             docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").remove()
-        }
-    }
-}
-            }
         }
     }
 }
