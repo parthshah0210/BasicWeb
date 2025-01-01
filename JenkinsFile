@@ -26,32 +26,9 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    // Run the Docker container with port mapping
-                    docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").run('-d -p 80:80')
+                    sh ' docker build ("${DOCKER_IMAGE_NAME}") -t ("${DOCKER_TAG}") '
+                    sh ' docker run -d -p 80:80 ("${DOCKER_TAG}") '
                 }
             }
         }
-
-        stage('Post Execution') {
-            steps {
-                script {
-                    // Stopping the container first
-                    def container = docker.ps("-q --filter ancestor=${DOCKER_IMAGE_NAME}:${DOCKER_TAG}")
-                    if (container) {
-                        // If a container exists, stop it
-                        docker.container(container).stop()
-                        // Optionally remove the container
-                        docker.container(container).remove()
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            // Remove the image after everything is done
-            docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").remove()
-        }
-    }
 }
