@@ -1,16 +1,36 @@
 pipeline {
     agent any
     
-    environment {
+   environment {
         DOCKER_IMAGE_NAME = 'my-image'
         DOCKER_TAG = 'latest'
+        SONAR_HOST_URL = 'http://localhost:9000'       // Update with your SonarQube URL
+        SONAR_PROJECT_KEY = 'my-project'              // Update with your SonarQube project key
+        SONAR_TOKEN = credentials('sonarqube')  // Add SonarQube token in Jenkins credentials
     }
+
     
     stages {
         stage('Checkout') {
             steps {
                 git url: 'https://github.com/parthshah0210/BasicWeb.git', branch: 'main'
                 echo 'Code checkout success'
+            }
+        }
+
+         stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv('sonarqube') { // 'SonarQube' should match the name in Jenkins SonarQube configuration
+                        sh """
+                        sonar-scanner \
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
+                }
             }
         }
 
