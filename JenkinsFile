@@ -4,7 +4,7 @@ pipeline {
    environment {
         DOCKER_IMAGE_NAME = 'my-image'
         DOCKER_TAG = 'latest'
-        SONAR_HOST_URL = 'http://localhost:9000'       // Update with your SonarQube URL
+        SONAR_HOST_URL = 'http://127.0.0.1:9000'       // Update with your SonarQube URL
         SONAR_PROJECT_KEY = 'my-project'              // Update with your SonarQube project key
         SONAR_TOKEN = credentials('sonarqube')  // Add SonarQube token in Jenkins credentials
     }
