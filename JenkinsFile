@@ -2,11 +2,7 @@ pipeline {
     agent any
     
    environment {
-        DOCKER_IMAGE_NAME = 'my-image'
-        DOCKER_TAG = 'latest'
-        SONAR_HOST_URL = 'http://127.0.0.1:9000'       // Update with your SonarQube URL
-        SONAR_PROJECT_KEY = 'my-project'              // Update with your SonarQube project key
-        SONAR_TOKEN = credentials('sonarqube')  // Add SonarQube token in Jenkins credentials
+        DOCKER_IMAGE = parthu210/my-image:latest
     }
 
     
@@ -17,28 +13,11 @@ pipeline {
                 echo 'Code checkout success'
             }
         }
-
-      //   stage('SonarQube Analysis') {
-      //       steps {
-        //        script {
-          //          withSonarQubeEnv('sonarqube') { // 'SonarQube' should match the name in Jenkins SonarQube configuration
-            //            sh """
-              //          sonar-scanner \
-                //        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                  //      -Dsonar.sources=. \
-                    //    -Dsonar.host.url=${SONAR_HOST_URL} \
-                      //  -Dsonar.login=${SONAR_TOKEN}
-                      //  """
-                //    }
-              //  }
-          //  }
-     //   }
-
         stage('Build Docker Image') {
             steps {
                 script {
                     // Build Docker image
-                    docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}")
+                    def dockerImage = docker.build("$DOCKER_IMAGE")
                 }
             }
         }
@@ -47,12 +26,9 @@ pipeline {
             steps {
                 script {
                     // Push Docker image to Docker Hub
-                    docker.withRegistry('https://index.docker.io/v1/', "dockerhub") {
-                        docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").push()
+                    docker.withRegistry('', "dockerhub") {
+                        dockerImage.push()
                     }
-
-                    // Run Docker container
-                    sh 'docker run -d -p 80:80 ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}'
                 }
             }
         }
